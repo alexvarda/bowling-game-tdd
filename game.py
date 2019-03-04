@@ -1,35 +1,46 @@
 
 class Game:
     def __init__(self):
-        self.score = 0
-        self.pins = [0 for i in range(11)]
+        self.rolls  = [[] for i in range(21)]
+        self.current_roll = 0
 
+    def __repr__(self):
+        return str(self.rolls)
 
-    def roll(self, n, pins):
-        x = 0
+    def roll (self, pins):
+        self.rolls[self.current_roll] = pins
+        self.current_roll+=1
 
-        for pin in pins:
-            self.pins[x] = pin
-            x += 1
+    def score (self):
+        score = 0
+        frameIndx = 0
+        for i in range(10):
+            if self.isStrike(frameIndx):
+                score += 10 
+                score += self.strikeBonus(frameIndx) 
+                frameIndx += 1
+            elif self.isSpare(frameIndx):
+                score += 10 
+                score += self.spareBonus(frameIndx) 
+                frameIndx += 2 
+            else:
+                score+= self.sumofBallsinFrame(frameIndx)
+                frameIndx += 2 
+        return score
+    
 
-        x = 0
-        spareBegin = 0
-        spareEnd = 2
+    def isSpare (self, frameIndx):
+        return ((self.rolls[frameIndx] + self.rolls[frameIndx+1]) == 10)
 
-        for roll in range(n):
-            spare = sum(self.pins[spareBegin:spareEnd])
-            if self.pins[x] == 10:
-                self.score = self.pins[x] + self.pins[x+1] + self.pins[x+2]
-            elif spare == 10:
-                self.score = spare + self.pins[x+2]
-                x += 1
-            else: self.score += self.pins[x]
-            x += 1
-            if x == 11:
-                break
-            
-            spareBegin += 2
-            spareEnd += 2
+    def spareBonus(self, frameIndx):
+        return (self.rolls[frameIndx+2])
 
+    def isStrike(self, frameIndx):
+        return (self.rolls [frameIndx] == 10)
 
+    def strikeBonus(self, frameIndx):
+        return (self.rolls[frameIndx+1] + self.rolls[frameIndx+2])
+
+    def sumofBallsinFrame(self, frameIndx):
+        return ( self.rolls[frameIndx] + self.rolls[frameIndx+1] )
 
